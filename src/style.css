@@ -12,6 +12,12 @@ body
     font-family: 'Poppins';
 }
 
+video
+{
+    height:100%;
+    width:100%;
+}
+
 .webgl
 {
     width: 100%;
@@ -33,5 +39,4 @@ body
   }
   #monitor {
     background-color: blueviolet;
-    transform: scaleX(-1);
   }
