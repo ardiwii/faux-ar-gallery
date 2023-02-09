@@ -66,8 +66,22 @@ function main() {
   const light = new THREE.PointLight(color,intensity, 20);
   light.position.set(0,0,0);
   scene.add(light);
-  const controls = new DeviceOrientationController(camera, renderer.domElement);
-  controls.connect();
+
+  if(typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission()
+    .then(response => {
+    if (response == 'granted') {
+      window.addEventListener('deviceorientation', (e) => {
+        const controls = new DeviceOrientationController(camera, renderer.domElement);
+        controls.connect();
+      })
+    } 
+  })
+  .catch(console.error)
+  } else {
+    const controls = new DeviceOrientationController(camera, renderer.domElement);
+    controls.connect();
+  }
 
   function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
