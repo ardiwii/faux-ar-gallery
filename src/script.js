@@ -2,21 +2,29 @@ import * as THREE from 'three';
 import './style.css';
 import DeviceOrientationController from './DeviceOrientationController.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { VideoTexture } from 'three';
 
 function main() {
     // Canvas
   const canvas = document.querySelector('canvas.webgl')
-  const renderer = new THREE.WebGLRenderer({canvas});
+  const renderer = new THREE.WebGLRenderer({canvas, alpha: true});
+  renderer.setClearAlpha(0.0);
 
   // grab the video element
   const video = document.querySelector('video');
   // this object needs to be an argument of getUserMedia
   const constraints = {
-    video: true
+    video: {
+      facingMode: 'environment'
+    }
   };
-  // when you grab the stream - display it on the <video> element
-  navigator.mediaDevices.getUserMedia(constraints).
-    then((stream) => {video.srcObject = stream});
+
+  if(navigator.mediaDevices != undefined){
+    // when you grab the stream - display it on the <video> element
+    navigator.mediaDevices.getUserMedia(constraints)
+      .then((stream) => {video.srcObject = stream})
+      .catch(console.error);
+  }
 
   const fov = 75;
   const aspect = 2;  // the canvas default
