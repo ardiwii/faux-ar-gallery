@@ -1,8 +1,6 @@
 import * as THREE from 'three';
 import './style.css';
-import DeviceOrientationController from './DeviceOrientationController.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { VideoTexture } from 'three';
+import DeviceOrientationControls from './DeviceOrientationControls.js';
 
 function main() {
     // Canvas
@@ -67,21 +65,8 @@ function main() {
   light.position.set(0,0,0);
   scene.add(light);
 
-  if(typeof DeviceOrientationEvent.requestPermission === 'function') {
-    DeviceOrientationEvent.requestPermission()
-    .then(response => {
-    if (response == 'granted') {
-      window.addEventListener('deviceorientation', (e) => {
-        const controls = new DeviceOrientationController(camera, renderer.domElement);
-        controls.connect();
-      })
-    } 
-  })
-  .catch(console.error)
-  } else {
-    const controls = new DeviceOrientationController(camera, renderer.domElement);
-    controls.connect();
-  }
+  const controls = new DeviceOrientationControls(camera);
+  controls.connect();
 
   function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
