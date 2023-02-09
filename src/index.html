@@ -8,13 +8,16 @@
 <body>
     <div class="parent">
         <button onclick="requestDeviceOrientation()">request device orientation</button>
-        <div id="monitor"><video autoplay></video></div>
+        <div id="monitor">
+            <video autoPlay={true}
+            playsInline={true}
+            muted={true}></video>
+        </div>
         <div id="mainCanvas"><canvas class="webgl"></canvas></div>
     </div>
 </body>
 <script>
     function requestDeviceOrientation () {
-        alert("requesting device orientation permission")
     if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission()
         .then(permissionState => {
