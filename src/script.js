@@ -8,6 +8,16 @@ function main() {
   const canvas = document.querySelector('canvas.webgl')
   const renderer = new THREE.WebGLRenderer({canvas});
 
+  // grab the video element
+  const video = document.querySelector('video');
+  // this object needs to be an argument of getUserMedia
+  const constraints = {
+    video: true
+  };
+  // when you grab the stream - display it on the <video> element
+  navigator.mediaDevices.getUserMedia(constraints).
+    then((stream) => {video.srcObject = stream});
+
   const fov = 75;
   const aspect = 2;  // the canvas default
   const near = 0.1;
