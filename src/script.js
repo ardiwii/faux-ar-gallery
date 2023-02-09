@@ -1,105 +1,88 @@
-import './style.css'
-import * as THREE from 'three'
+import * as THREE from 'three';
+import './style.css';
+import DeviceOrientationController from './DeviceOrientationController.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import * as dat from 'dat.gui'
 
-// Debug
-const gui = new dat.GUI()
+function main() {
+    // Canvas
+  const canvas = document.querySelector('canvas.webgl')
+  const renderer = new THREE.WebGLRenderer({canvas});
 
-// Canvas
-const canvas = document.querySelector('canvas.webgl')
+  const fov = 75;
+  const aspect = 2;  // the canvas default
+  const near = 0.1;
+  const far = 5;
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
-// Scene
-const scene = new THREE.Scene()
+  const scene = new THREE.Scene();
 
-// Objects
-const geometry = new THREE.TorusGeometry( .7, .2, 16, 100 );
+  const boxWidth = 1;
+  const boxHeight = 1;
+  const boxDepth = 1;
+  const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
 
-// Materials
+  function makeInstance(geometry, color, x, y, z){
+    const material = new THREE.MeshPhongMaterial({color});  // greenish blue
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+    cube.position.x = x;
+    cube.position.y = y;
+    cube.position.z = z;
 
-const material = new THREE.MeshBasicMaterial()
-material.color = new THREE.Color(0xff0000)
+    return cube;
+  }
 
-// Mesh
-const sphere = new THREE.Mesh(geometry,material)
-scene.add(sphere)
+  const cubes = [
+    makeInstance(geometry, 0xaa8844,  0, 0, 4.5),
+    makeInstance(geometry, 0x44aa88,  3, 0, 3),
+    makeInstance(geometry, 0xaa8844, 4.5, 0, 0),
+    makeInstance(geometry, 0x44aa88,  3, 0, -3),
+    makeInstance(geometry, 0xaa8844, 0, 0, -4.5),
+    makeInstance(geometry, 0x44aa88, -3, 0, -3),
+    makeInstance(geometry, 0xaa8844, -4.5, 0, 0),
+    makeInstance(geometry, 0x44aa88, -3, 0, 3),
+  ];
 
-// Lights
+  const color = 0xFFFFFF;
+  const intensity = 1;
+  const light = new THREE.PointLight(color,intensity, 20);
+  light.position.set(0,0,0);
+  scene.add(light);
+  const controls = new DeviceOrientationController(camera, renderer.domElement);
+  controls.connect();
 
-const pointLight = new THREE.PointLight(0xffffff, 0.1)
-pointLight.position.x = 2
-pointLight.position.y = 3
-pointLight.position.z = 4
-scene.add(pointLight)
+  function resizeRendererToDisplaySize(renderer) {
+    const canvas = renderer.domElement;
+    const pixelRatio = window.devicePixelRatio;
+    const width = canvas.clientWidth * pixelRatio | 0;
+    const height = canvas.clientHeight * pixelRatio | 0;
+    const needResize = canvas.width !== width || canvas.height !== height;
+    if (needResize) {
+      renderer.setSize(width, height, false);
+    }
+    return needResize;
+  }
 
-/**
- * Sizes
- */
-const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
+  function render(time){
+    time *= 0.001;
+    controls.update();
+    if(resizeRendererToDisplaySize(renderer)){
+      const canvas = renderer.domElement;
+      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      camera.updateProjectionMatrix();
+    }
+
+    cubes.forEach((cube, ndx) => {
+      const speed = 1 + ndx * .1;
+      const rot = time * speed;
+      cube.rotation.x = rot;
+      cube.rotation.y = rot;
+    });
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
 }
 
-window.addEventListener('resize', () =>
-{
-    // Update sizes
-    sizes.width = window.innerWidth
-    sizes.height = window.innerHeight
-
-    // Update camera
-    camera.aspect = sizes.width / sizes.height
-    camera.updateProjectionMatrix()
-
-    // Update renderer
-    renderer.setSize(sizes.width, sizes.height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-})
-
-/**
- * Camera
- */
-// Base camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.x = 0
-camera.position.y = 0
-camera.position.z = 2
-scene.add(camera)
-
-// Controls
-// const controls = new OrbitControls(camera, canvas)
-// controls.enableDamping = true
-
-/**
- * Renderer
- */
-const renderer = new THREE.WebGLRenderer({
-    canvas: canvas
-})
-renderer.setSize(sizes.width, sizes.height)
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-
-/**
- * Animate
- */
-
-const clock = new THREE.Clock()
-
-const tick = () =>
-{
-
-    const elapsedTime = clock.getElapsedTime()
-
-    // Update objects
-    sphere.rotation.y = .5 * elapsedTime
-
-    // Update Orbital Controls
-    // controls.update()
-
-    // Render
-    renderer.render(scene, camera)
-
-    // Call tick again on the next frame
-    window.requestAnimationFrame(tick)
-}
-
-tick()
+main();
